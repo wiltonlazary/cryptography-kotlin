@@ -7,17 +7,14 @@ import org.jetbrains.kotlin.gradle.*
 
 plugins {
     id("ckbuild.multiplatform-library")
-    alias(libs.plugins.kotlin.plugin.serialization)
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 description = "cryptography-kotlin BigInt API"
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    jvmTarget()
-    jsTarget()
-    nativeTargets()
-    wasmTargets()
+    allTargets()
 
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")

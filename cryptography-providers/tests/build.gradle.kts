@@ -6,30 +6,15 @@ import ckbuild.*
 import org.jetbrains.kotlin.gradle.*
 
 plugins {
-    id("ckbuild.multiplatform-base")
-    id("ckbuild.multiplatform-android")
-
+    id("ckbuild.multiplatform-tests")
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 @OptIn(ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    jvmTarget()
-    jsTarget()
-    nativeTargets()
-    wasmJsTarget()
-
-    applyDefaultHierarchyTemplate {
-        common {
-            group("nonJs") {
-                withAndroidTarget()
-                withJvm()
-                withWasmJs()
-                withWasmWasi()
-                group("native")
-            }
-        }
-    }
+    allTargets(
+        supportsWasmWasi = false,
+    )
 
     compilerOptions {
         optIn.addAll(
@@ -56,9 +41,6 @@ kotlin {
             api(kotlin("test-js"))
         }
         jvmMain.dependencies {
-            api(kotlin("test-junit"))
-        }
-        androidMain.dependencies {
             api(kotlin("test-junit"))
         }
     }

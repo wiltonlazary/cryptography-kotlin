@@ -122,8 +122,8 @@ fun AlgorithmTestScope<out EC<*, *, *>>.supportsPrivateKeyDecoding(
                 EC.PrivateKey.Format.RAW      -> return false
                 EC.PrivateKey.Format.DER      -> decodePki(key)
                 EC.PrivateKey.Format.DER.SEC1 -> key
-                EC.PrivateKey.Format.PEM      -> decodePki(Pem.decode(key).byteString)
-                EC.PrivateKey.Format.PEM.SEC1 -> Pem.decode(key).byteString
+                EC.PrivateKey.Format.PEM      -> decodePki(PemDocument.decode(key).content)
+                EC.PrivateKey.Format.PEM.SEC1 -> PemDocument.decode(key).content
             }
         )
     }
@@ -138,17 +138,10 @@ fun AlgorithmTestScope<out EC<*, *, *>>.supportsPrivateKeyDecoding(
 }
 
 fun ProviderTestScope.supports(algorithmId: CryptographyAlgorithmId<*>): Boolean = validate {
-    when {
-        algorithmId == AES.CMAC && provider.isJdkDefault -> "Default JDK provider doesn't support AES-CMAC, only supported with BouncyCastle"
-        algorithmId == RSA.PSS &&
-                provider.isJdkDefault &&
-                platform.isAndroid                    -> "JDK provider on Android doesn't support RSASSA-PSS"
-        provider.isJdkDefault &&
-                platform.isAndroid { apiLevel == 21 } -> "JDK provider on Android API 21 is super unstable"
-        (algorithmId == ECDH || algorithmId == ECDSA) &&
-                provider.isJdkDefault &&
-                platform.isAndroid { apiLevel == 27 } -> "Key encoding of EC DER private key on Android API 27 is flaky"
-        else                                          -> null
+    when (algorithmId) {
+        AES.CMAC if provider.isJdkDefault                      -> "Default JDK provider doesn't support AES-CMAC, only supported with BouncyCastle"
+        RSA.PSS if provider.isJdkDefault && platform.isAndroid -> "JDK provider on Android doesn't support RSASSA-PSS"
+        else                                                   -> null
     }
 }
 

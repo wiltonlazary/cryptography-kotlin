@@ -6,16 +6,13 @@ import ckbuild.*
 
 plugins {
     id("ckbuild.multiplatform-library")
-    alias(libs.plugins.kotlin.plugin.serialization)
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 description = "cryptography-kotlin ASN.1 modules"
 
 kotlin {
-    jvmTarget()
-    jsTarget()
-    nativeTargets()
-    wasmTargets()
+    allTargets()
 
     sourceSets {
         commonMain.dependencies {

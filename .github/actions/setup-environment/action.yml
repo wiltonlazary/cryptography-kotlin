@@ -7,6 +7,9 @@ inputs:
   cache-read-only:
     description: 'gradle.cache-read-only'
     default: 'true'
+  submit-dependency-graph:
+    description: 'gradle.dependency-graph.generate-and-submit'
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -24,10 +27,24 @@ runs:
           11
           17
           21
+
+    # Platform specific setup
     - name: "Redirect konan caches to fast D: drive for Windows runners"
       if: runner.os == 'Windows'
       shell: cmd
       run: echo KONAN_DATA_DIR=D:\.konan>>%GITHUB_ENV%
+    - name: Install openssl in mingw environment (for openssl shared testing)
+      if: runner.os == 'Windows'
+      uses: msys2/setup-msys2@v2
+      with:
+        release: false
+        install: mingw-w64-x86_64-openssl
+    - name: Use latest Xcode, so that it will have the latest platforms installed and supported
+      if: runner.os == 'macOS'
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+
     - uses: gradle/actions/setup-gradle@v4
       with:
         build-scan-publish: true
@@ -36,10 +53,7 @@ runs:
 
         cache-disabled: ${{ inputs.cache-disabled }}
         cache-read-only: ${{ inputs.cache-read-only }}
-    - if: runner.os == 'Windows'
-      uses: msys2/setup-msys2@v2
-      with:
-        release: false
-        install: mingw-w64-x86_64-openssl
+
+        dependency-graph: ${{ (inputs.submit-dependency-graph == 'true') && 'generate-and-submit' || 'disabled' }}
     - run: ./gradlew commonizeNativeDistribution
       shell: bash

@@ -11,14 +11,27 @@ plugins {
 description = "cryptography-kotlin PEM API"
 
 kotlin {
-    jvmTarget()
-    jsTarget()
-    nativeTargets()
-    wasmTargets()
+    allTargets()
 
     sourceSets {
         commonMain.dependencies {
             api(libs.kotlinx.io.core)
         }
     }
+}
+
+kover {
+    reports {
+        filters.excludes {
+            annotatedBy("kotlin.Deprecated")
+        }
+        verify.rule {
+            minBound(90)
+        }
+    }
+}
+
+dokka {
+    includeCommonDocs()
+    registerKotlinxIoExternalDocumentation()
 }
